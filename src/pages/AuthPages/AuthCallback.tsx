@@ -14,7 +14,7 @@ const AuthCallback = () => {
 
     if (accessToken && refreshToken) {
       setSession(accessToken, refreshToken).then(() => {
-        navigate('/'); // só navega depois de autenticar com sucesso
+        navigate('/');
       });
     } else {
       navigate('/signin');

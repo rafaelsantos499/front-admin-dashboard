@@ -82,7 +82,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setToken('');
     setRefreshToken('');
     setIsAuthenticated(false);
-    localStorage.removeItem('user');
     localStorage.removeItem('token');
     localStorage.removeItem('refresh-token');
   };
@@ -92,7 +91,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setToken(accessToken);
     setRefreshToken(refreshToken);
     localStorage.setItem('token', accessToken);
-    localStorage.setItem('refresh-token', refreshToken);
+    localStorage.setItem('refresh-token', refreshToken)
+    await meUser()
   };
 
   return (

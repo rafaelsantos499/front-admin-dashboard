@@ -9,7 +9,7 @@ import { useAuth } from "../../service/Auth/AuthContext";
 import { useLocation } from "react-router";
 
 export default function Home() {
-  const { setSession, user } = useAuth()
+  const { setSession } = useAuth()
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const accessToken = searchParams.get('accessToken');
@@ -17,7 +17,6 @@ export default function Home() {
 
   if (accessToken && refreshToken) {
     setSession(accessToken, refreshToken)
-    // console.log('home/user',user)
   }
 
   return (
