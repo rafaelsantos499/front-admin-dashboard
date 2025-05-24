@@ -5,8 +5,21 @@ import MonthlyTarget from "../../components/ecommerce/MonthlyTarget";
 import RecentOrders from "../../components/ecommerce/RecentOrders";
 import DemographicCard from "../../components/ecommerce/DemographicCard";
 import PageMeta from "../../components/common/PageMeta";
+import { useAuth } from "../../service/AuthContext";
+import { useLocation } from "react-router";
 
 export default function Home() {
+  const { setSession, user } = useAuth()
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const accessToken = searchParams.get('accessToken');
+  const refreshToken = searchParams.get('refreshToken');
+
+  if (accessToken && refreshToken) {
+    setSession(accessToken, refreshToken)
+    // console.log('home/user',user)
+  }
+
   return (
     <>
       <PageMeta
