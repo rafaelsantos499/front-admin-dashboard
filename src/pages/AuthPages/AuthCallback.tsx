@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../service/AuthContext';
+import { useAuth } from '../../service/Auth/AuthContext';
 
 const AuthCallback = () => {
   const { setSession } = useAuth();

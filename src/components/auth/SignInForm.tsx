@@ -6,7 +6,7 @@ import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
 import { useForm } from 'react-hook-form';
-import { useAuth } from "../../service/AuthContext";
+import { useAuth } from "../../service/Auth/AuthContext";
 import { useNavigate } from 'react-router-dom';
 
 type FormData = {

@@ -5,9 +5,9 @@ import React, {
   useContext,
   ReactNode,
 } from 'react';
-import { LoginDto } from '../types/dto/LoginDTO';
+import { LoginDto } from '../../types/dto/LoginDTO';
 import { login as loginRequest, me } from './authService';
-import { User } from '../types/User';
+import { User } from '../../types/User';
 
 interface AuthContextType {
   user: User | null;

@@ -5,7 +5,7 @@ import MonthlyTarget from "../../components/ecommerce/MonthlyTarget";
 import RecentOrders from "../../components/ecommerce/RecentOrders";
 import DemographicCard from "../../components/ecommerce/DemographicCard";
 import PageMeta from "../../components/common/PageMeta";
-import { useAuth } from "../../service/AuthContext";
+import { useAuth } from "../../service/Auth/AuthContext";
 import { useLocation } from "react-router";
 
 export default function Home() {

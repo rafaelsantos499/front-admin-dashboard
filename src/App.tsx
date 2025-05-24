@@ -18,10 +18,10 @@ import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
-import { AuthProvider } from "./service/AuthContext";
-import PrivateRoute from "./PrivateRoute";
+import { AuthProvider } from "./service/Auth/AuthContext";
+import PrivateRoute from "./routes/PrivateRoute";
 import AuthCallback from "./pages/AuthPages/AuthCallback";
-import PublicRoute from "./service/PublicRoute";
+import PublicRoute from "./routes/PublicRoute";
 
 export default function App() {
   return (

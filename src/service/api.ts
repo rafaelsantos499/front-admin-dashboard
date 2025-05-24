@@ -1,55 +1,76 @@
 // src/services/api.ts
-import axios from 'axios';
-import { InternalAxiosRequestConfig } from 'axios';
-import { AxiosError } from 'axios';
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { ResponseLogin } from '../types/response/login';
 
-const BASE_URL = 'http://localhost:3000/';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
-// Instância sem autenticação
 export const apiPublic = axios.create({
-    baseURL: BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
+  baseURL: BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-// Instância com Bearer Token
 export const apiPrivate = axios.create({
-    baseURL: BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-         Authorization: localStorage.getItem('token') ? `Bearer ${localStorage.getItem('token')}` : '',
-    },
+  baseURL: BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-// Interceptor de resposta para tratar 401
+export const apiPrivateRefresh = axios.create({
+  baseURL: BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Token dynamic injection
+apiPrivate.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token && config.headers) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+apiPrivateRefresh.interceptors.request.use((config) => {
+  const refreshToken = localStorage.getItem('refresh-token');
+  if (refreshToken && config.headers) {
+    config.headers.Authorization = `Bearer ${refreshToken}`;
+  }
+  return config;
+});
+
+// Logout handler
+const handleLogout = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('refresh-token');
+  window.location.href = '/signin';
+};
+
+// Interceptor para refresh automático
 apiPrivate.interceptors.response.use(
-    (response) => response,
-    async (error: AxiosError) => {
-      const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
-  
-      if (error.response?.status === 401 && !originalRequest._retry) {
-        originalRequest._retry = true;
-  
-        try {
-          // 🚀 Tenta renovar o token (ex: usando refresh token ou re-login automático)
-        //   const { data } = await apiPublic.post('/auth/refresh-token');
-        // //   localStorage.setItem('token', data.token);
-  
-        //   // 🛠️ Atualiza header da nova request
-        //   apiPrivate.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-        //   originalRequest.headers['Authorization'] = `Bearer ${data.token}`;
-  
-          return apiPrivate(originalRequest); // refaz a chamada original
-          
-        } catch (refreshError) {
-          // ❌ Falhou novamente → desloga
-          console.error('Erro ao renovar token:', refreshError);
-          localStorage.removeItem('token');
-          window.location.href = '/login'; // ou use navigate('/login')
-        }
+  (response) => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        const { data } = await apiPrivateRefresh.post<ResponseLogin>('auth/refresh');
+        localStorage.setItem('token', data.accessToken);
+        localStorage.setItem('refresh-token', data.refreshToken);
+
+        originalRequest.headers['Authorization'] = `Bearer ${data.accessToken}`;
+        return apiPrivate(originalRequest); // retry original request
+      } catch (refreshError) {
+        console.error('Erro ao renovar token:', refreshError);
+        handleLogout();
       }
-  
-      return Promise.reject(error);
     }
-  );
+
+    return Promise.reject(error);
+  }
+);
