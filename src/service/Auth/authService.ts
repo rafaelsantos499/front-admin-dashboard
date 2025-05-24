@@ -14,3 +14,8 @@ export const me = async () : Promise<User> => {
     return data;
 }
 
+export const signout = async () : Promise<{message: string}> => {
+    const { data } = await apiPrivate.post<{message: string}>('auth/signout');
+    return data;
+}
+

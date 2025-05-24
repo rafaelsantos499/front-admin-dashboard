@@ -6,7 +6,7 @@ import React, {
   ReactNode,
 } from 'react';
 import { LoginDto } from '../../types/dto/LoginDTO';
-import { login as loginRequest, me } from './authService';
+import { login as loginRequest, me, signout } from './authService';
 import { User } from '../../types/User';
 
 interface AuthContextType {
@@ -54,8 +54,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       } else {
         logout();
       }
-    } catch {
-      logout();
+    } catch(e) {
+      console.error(e)
     }
   };
 
@@ -77,7 +77,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await signout()
     setUser(null);
     setToken('');
     setRefreshToken('');
@@ -88,6 +89,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Função para atualizar token e refreshToken (ex: refresh token)
   const setSession = async (accessToken: string, refreshToken: string) => {
+    console.log('accessToken',accessToken)
+    console.log('refreshToken',refreshToken)
     setToken(accessToken);
     setRefreshToken(refreshToken);
     localStorage.setItem('token', accessToken);
