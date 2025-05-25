@@ -22,6 +22,7 @@ import { AuthProvider } from "./service/Auth/AuthContext";
 import PrivateRoute from "./routes/PrivateRoute";
 import AuthCallback from "./pages/AuthPages/AuthCallback";
 import PublicRoute from "./routes/PublicRoute";
+import Patient from "./pages/patient/Patient";
 
 export default function App() {
   return (
@@ -42,8 +43,10 @@ export default function App() {
           <Route element={<PrivateRoute />}>
             {/* Dashboard Layout */}
             <Route element={<AppLayout />}>
+
               <Route index path="/" element={<Home />} />
               <Route path="/profile" element={<UserProfiles />} />
+              <Route path="/patient" element={<Patient />} />
               <Route path="/calendar" element={<Calendar />} />
               <Route path="/blank" element={<Blank />} />
               <Route path="/form-elements" element={<FormElements />} />
