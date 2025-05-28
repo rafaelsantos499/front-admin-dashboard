@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { findAllPatient } from "../../../service/Patient/patientService";
 import Button from "../../ui/button/Button";
 import { UserIcon } from "../../../icons";
+import { Link, Navigate, useNavigate } from "react-router";
 
 function SkeletonRow() {
     return (
@@ -28,6 +29,7 @@ function SkeletonRow() {
 export default function PatientTable() {
     const [patients, setPatients] = useState<FindAllPatient[]>([]);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     const fetchPatients = async () => {
         try {
@@ -41,6 +43,10 @@ export default function PatientTable() {
         }
     };
 
+    const handleEdit = (id: string) => {
+        navigate(`/patient/${id}`);
+    };
+
     useEffect(() => {
         fetchPatients();
     }, []);
@@ -48,13 +54,15 @@ export default function PatientTable() {
     return (
         <>
             <div className="flex justify-end">
-                <Button
-                    size="sm"
-                    variant="primary"
-                    startIcon={<UserIcon className="size-5" />}
-                >
-                    Adicionar Paciente
-                </Button>
+                <Link to="/patient/new-patient">
+                    <Button
+                        size="sm"
+                        variant="primary"
+                        startIcon={<UserIcon className="size-5" />}
+                    >
+                        Adicionar Paciente
+                    </Button>
+                </Link>
             </div>
             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
 
@@ -156,7 +164,7 @@ export default function PatientTable() {
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                                             <button
-
+                                                onClick={() => handleEdit(patient.patientId)}
                                                 className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
                                             >
                                                 <svg

@@ -1,9 +1,10 @@
 import React from "react";
+import InputMask from "react-input-mask";
 import type { ChangeEvent, FocusEvent } from "react";
 import type { UseFormRegisterReturn } from "react-hook-form";
 
 interface InputProps {
-  type?: "text" | "number" | "email" | "password" | "date" | "time" | string;
+  type?: string;
   id?: string;
   name?: string;
   placeholder?: string;
@@ -18,7 +19,8 @@ interface InputProps {
   success?: boolean;
   error?: boolean;
   hint?: string;
-  register?: UseFormRegisterReturn; // permite passar {...register("email")}
+  register?: UseFormRegisterReturn;
+  mask?: string; // <- nova prop
 }
 
 const Input: React.FC<InputProps> = ({
@@ -38,6 +40,7 @@ const Input: React.FC<InputProps> = ({
   success = false,
   error = false,
   hint,
+  mask,
 }) => {
   let inputClasses = `h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${className}`;
 
@@ -53,30 +56,42 @@ const Input: React.FC<InputProps> = ({
 
   return (
     <div className="relative">
-      <input
-        type={type}
-        id={id}
-        name={name}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        onBlur={onBlur}
-        min={min}
-        max={max}
-        step={step}
-        disabled={disabled}
-        className={inputClasses}
-        {...register} // aplica todos os eventos e ref do react-hook-form
-      />
-      {hint && (
-        <p
-          className={`mt-1.5 text-sm ${error
-              ? "text-error-500"
-              : success
-                ? "text-success-500"
-                : "text-gray-500"
-            }`}
+      {mask ? (
+        <InputMask
+          mask={mask}
+          disabled={disabled}
+          placeholder={placeholder}
+          {...register}
         >
+          {(inputProps: any) => (
+            <input
+              type="text"
+              className={inputClasses}
+              {...inputProps}
+              onChange={onChange}
+              onBlur={onBlur}
+            />
+          )}
+        </InputMask>
+      ) : (
+        <input
+          type={type}
+          id={id}
+          name={name}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          onBlur={onBlur}
+          min={min}
+          max={max}
+          step={step}
+          disabled={disabled}
+          className={inputClasses}
+          {...register}
+        />
+      )}
+      {hint && (
+        <p className={`mt-1.5 text-sm ${error ? "text-error-500" : "text-gray-500"}`}>
           {hint}
         </p>
       )}
