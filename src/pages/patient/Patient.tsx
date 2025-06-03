@@ -11,21 +11,22 @@ export default function Patients() {
     const [patient, setPatient] = useState<Patient | null>(null);
     const { id } = useParams();
     const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false)
+
 
     useEffect(() => {
         const fetchPatient = async () => {
             if (id) {
                 try {
-                    const response = await findPatient(id);
-
-                    if (typeof response.socialMedia === "string") {
-                        const socialMediaObj: SocialMedia = JSON.parse(response.socialMedia);
-                        response.twitter = socialMediaObj.twitter || '';
-                        response.instagram = socialMediaObj.instagram || '';
-                        response.facebook = socialMediaObj.facebook || '';
+                    try {
+                        setIsLoading(true);
+                        const response = await findPatient(id);
+                        setPatient(response);
+                    } catch (error) {
+                        navigate('/patient');
+                    } finally {
+                        setIsLoading(false); // agora sim!
                     }
-
-                    setPatient(response);
                 } catch (error) {
                     navigate('/patient')
                 }
@@ -38,15 +39,16 @@ export default function Patients() {
     // Converta patient para o formato FormData que o FormPatient espera
     const formPatientData: FormData | undefined = patient
         ? {
+            id: patient.id,
             fullName: patient.fullName || "",
             email: patient.email || "",
             birthDate: patient.birthDate || "",
             phone: patient.phone || "",
             address: patient.address || "",
             gender: patient.gender || "",
-            twitter: patient.twitter || "",
-            instagram: patient.instagram || "",
-            facebook: patient.facebook || "",
+            twitter: patient.socialMedia.twitter || "",
+            instagram: patient.socialMedia.instagram || "",
+            facebook: patient.socialMedia.facebook || "",
         }
         : undefined;
 
@@ -58,7 +60,7 @@ export default function Patients() {
             />
             <PageBreadcrumb pageTitle={id ? 'Editar' : 'Cadastro'} previousPage={{ url: '/patient', title: 'Pacientes' }} />
             <div className="space-y-6">
-                <FormPatient patient={formPatientData} />
+                <FormPatient patient={formPatientData} isLoading={isLoading} />
             </div>
         </>
     );

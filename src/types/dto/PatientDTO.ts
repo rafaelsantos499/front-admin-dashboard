@@ -1,8 +1,18 @@
+export interface PatientDto {
+  fullName: string;
+  email?: string;
+  birthDate: string;
+  phone: string;
+  address: string;
+  gender: string;
+  socialMedia: SocialMedia;
+}
+
+
 export interface SocialMedia {
   twitter?: string;
   instagram?: string;
   facebook?: string;
-  [key: string]: string | undefined; // Para extensibilidade, caso haja outras redes sociais
 }
 
 export interface Patient {
@@ -14,7 +24,7 @@ export interface Patient {
   phone: string;
   address: string;
   gender: string;
-  socialMedia: SocialMedia | string; // Pode ser objeto ou string JSON
+  socialMedia: SocialMedia; // Pode ser objeto ou string JSON
   twitter?: string;
   facebook?: string;
   instagram?: string;
@@ -42,5 +52,4 @@ export interface FormDataPatient {
   twitter: string;
   instagram: string;
   facebook: string;
-
 }

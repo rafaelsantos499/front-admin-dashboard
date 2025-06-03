@@ -146,7 +146,7 @@ export default function PatientTable() {
                                             {patient.patient.gender}
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                            {new Date(patient.patient.createdAt).toLocaleDateString()}
+                                            {patient.patient.createdAt}
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                                             <Badge

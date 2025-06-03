@@ -24,6 +24,7 @@ import AuthCallback from "./pages/AuthPages/AuthCallback";
 import PublicRoute from "./routes/PublicRoute";
 import Patients from "./pages/patient/Patients";
 import Patient from "./pages/patient/Patient";
+import 'react-loading-skeleton/dist/skeleton.css'
 
 export default function App() {
   return (
