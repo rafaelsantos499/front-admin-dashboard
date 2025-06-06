@@ -3,16 +3,15 @@ import ComponentCard from "../common/ComponentCard";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import Button from "../ui/button/Button";
-import { At, CalenderIcon, EnvelopeIcon, UserIcon } from "../../icons";
+import { At, BoxIcon, CalenderIcon, EnvelopeIcon, TrashBinIcon, UserIcon } from "../../icons";
 import Select from "../form/Select";
 import Flatpickr from "react-flatpickr";
 import { Portuguese } from "flatpickr/dist/l10n/pt.js";
 import { useEffect, useState, useTransition } from "react";
 import { useParams } from 'react-router-dom';
 import { createPatient, updatePatient } from "../../service/Patient/patientService";
-import { PatientDto } from "../../types/dto/PatientDTO";
+import { EmergencyContacts, PatientDto } from "../../types/dto/PatientDTO";
 import Skeleton from 'react-loading-skeleton'
-import Patient from "../../pages/patient/Patients";
 export interface FormData {
     id: string
     fullName: string;
@@ -24,6 +23,13 @@ export interface FormData {
     twitter: string;
     instagram: string;
     facebook: string;
+    maritalStatus: string | null;
+    EmergencyContacts: EmergencyContacts[];
+}
+interface EmergencyContactForm {
+    contactName: string;
+    contactPhone: string;
+    contactReason: string;
 }
 
 interface FormPatientProps {
@@ -46,6 +52,9 @@ export default function FormPatient({ patient, isLoading }: FormPatientProps) {
     const params = useParams();
     const newPatient = !params.id;
     const [isPending, startTransition] = useState(false)
+    const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContacts[]>(
+        patient?.EmergencyContacts || []
+    );
 
     const { register, handleSubmit, formState: { errors }, control, reset } = useForm<FormData>({
         defaultValues: patient || {
@@ -61,9 +70,23 @@ export default function FormPatient({ patient, isLoading }: FormPatientProps) {
         }
     });
 
+    const {
+        register: registerContact,
+        handleSubmit: handleContactSubmit,
+        formState: { errors: contactErrors },
+        reset: resetContact,
+    } = useForm<EmergencyContactForm>({
+        defaultValues: {
+            contactName: "",
+            contactPhone: "",
+            contactReason: "",
+        },
+    });
+
     useEffect(() => {
         if (patient) {
             reset(patient);
+            setEmergencyContacts(patient.EmergencyContacts || []);
         }
     }, [patient, reset]);
 
@@ -81,18 +104,33 @@ export default function FormPatient({ patient, isLoading }: FormPatientProps) {
             phone: data.phone
         };
 
+        console.log("emergencyContacts:", emergencyContacts);
+
+
         const payload: PatientDto = patient && params.id
             ? basePayload
             : { ...basePayload, email: data.email }; // create, com email
-
         startTransition(true)
         if (newPatient) {
             await createPatient(payload).finally(() => startTransition(false));
         } else {
             await updatePatient(payload, params.id as string).finally(() => startTransition(false));
         }
-
     };
+
+    const onAddContact = (data: EmergencyContactForm) => {
+        const newContact: EmergencyContacts = {
+            name: data.contactName,
+            phone: data.contactPhone,
+            relationship: data.contactReason,
+        };
+        setEmergencyContacts((prev) => [...prev, newContact]);
+        resetContact();
+    };
+
+    const handleRemoveContact = (index: number) => {
+        setEmergencyContacts((prev) => prev.filter((_, i) => i !== index));
+    }
 
     return (
         <>
@@ -103,6 +141,7 @@ export default function FormPatient({ patient, isLoading }: FormPatientProps) {
                             <div className="space-y-6">
                                 {!isLoading ?
                                     <>
+                                        <Label htmlFor="input" required>Nome</Label>
                                         <div>
                                             <Input
                                                 register={register("fullName", {
@@ -166,7 +205,94 @@ export default function FormPatient({ patient, isLoading }: FormPatientProps) {
                                 }
 
                             </div>
+                        </ComponentCard>
+                        <ComponentCard title="Contatos de emergência">
+                            <div className="space-y-6">
+                                <form noValidate>
+                                    <div>
+                                        <Label htmlFor="contactName" required>Nome do Contato</Label>
+                                        <Input
+                                            register={registerContact("contactName", {
+                                                required: "Nome do contato é obrigatório",
+                                            })}
+                                            error={!!contactErrors.contactName}
+                                            hint={typeof contactErrors.contactName?.message === "string" ? contactErrors.contactName.message : ""}
+                                            placeholder="Nome do contato"
+                                        />
+                                    </div>
+                                    <div className="mt-4">
+                                        <Label htmlFor="contactPhone" required>Telefone</Label>
+                                        <Input
+                                            register={registerContact("contactPhone", {
+                                                required: "Telefone é obrigatório",
+                                                validate: (value) => {
+                                                    const numeric = value.replace(/\D/g, "");
+                                                    return numeric.length === 11 || "Telefone incompleto";
+                                                },
+                                            })}
+                                            error={!!contactErrors.contactPhone}
+                                            hint={typeof contactErrors.contactPhone?.message === "string" ? contactErrors.contactPhone.message : ""}
+                                            placeholder="(99) 99999-9999"
+                                            mask="(99) 99999-9999"
+                                        />
+                                    </div>
+                                    <div className="mt-4">
+                                        <Label htmlFor="contactReason">Motivo</Label>
+                                        <Input
+                                            register={registerContact("contactReason")}
+                                            error={!!contactErrors.contactReason}
+                                            placeholder="Motivo do contato"
+                                        />
+                                    </div>
+                                    <div className="flex justify-end mt-4">
+                                        <Button
+                                            size="sm"
+                                            type="button"
+                                            variant="outline"
+                                            onClick={handleContactSubmit(onAddContact)}
+                                            endIcon={<BoxIcon className="size-5" />}
+                                        >
+                                            Adicionar Contato
+                                        </Button>
+                                    </div>
+                                </form>
+                                {emergencyContacts.length > 0 && (
+                                    <div className="mt-6">
+                                        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            Contatos Adicionados
+                                        </h3>
+                                        <ul className="mt-2 divide-y divide-gray-200 dark:divide-gray-700">
+                                            {emergencyContacts.map((contact, index) => (
+                                                <li
+                                                    key={index}
+                                                    className="py-2 text-sm text-gray-600 dark:text-gray-400"
+                                                >
+                                                    <div className="flex items-center justify-between">
+                                                        <div>
+                                                            <span className="font-medium">Nome:</span> {contact.name} |{" "}
+                                                            <span className="font-medium">Telefone:</span> {contact.phone} |{" "}
+                                                            <span className="font-medium">Motivo:</span> {contact.relationship}
+                                                        </div>
+                                                        <div>
+                                                            <span className="">
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="outline"
+                                                                    type="button"
+                                                                    onClick={() => handleRemoveContact(index)}
+                                                                    startIcon={<TrashBinIcon className="size-5" />}
+                                                                >
+                                                                </Button>
+                                                            </span>
+                                                        </div>
+                                                    </div>
 
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
                         </ComponentCard>
                     </div>
                     <div className="space-y-6">
@@ -203,7 +329,7 @@ export default function FormPatient({ patient, isLoading }: FormPatientProps) {
                                                 }}
                                                 render={({ field }) => (
                                                     <Flatpickr
-                                                        {...field}                                                       
+                                                        {...field}
                                                         options={{
                                                             dateFormat: "Y-m-d",
                                                             locale: Portuguese
@@ -281,18 +407,17 @@ export default function FormPatient({ patient, isLoading }: FormPatientProps) {
 
                             </div>
                         </ComponentCard>
+                        <div className="flex justify-end mt-4">
+                            <Button
+                                size="sm"
+                                variant="primary"
+                                startIcon={<UserIcon className="size-5" />}
+                                disabled={isPending}
+                            >
+                                {isPending ? "Salvando..." : newPatient ? 'Adicionar' : 'Editar'}
+                            </Button>
+                        </div>
                     </div>
-                </div>
-                <div className="flex justify-end mt-4">
-                    <Button
-                        size="sm"
-                        variant="primary"
-                        startIcon={<UserIcon className="size-5" />}
-                        disabled={isPending}
-                    >
-                        {isPending ? "Salvando..." : newPatient ? 'Adicionar' : 'Editar'}
-                    </Button>
-
                 </div>
             </form>
         </>

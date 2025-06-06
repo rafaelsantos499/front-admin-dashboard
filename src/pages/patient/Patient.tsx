@@ -49,6 +49,8 @@ export default function Patients() {
             twitter: patient.socialMedia.twitter || "",
             instagram: patient.socialMedia.instagram || "",
             facebook: patient.socialMedia.facebook || "",
+            maritalStatus: patient.maritalStatus || "",
+            EmergencyContacts: patient.EmergencyContacts || []
         }
         : undefined;
 

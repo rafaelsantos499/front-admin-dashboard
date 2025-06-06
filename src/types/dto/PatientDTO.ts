@@ -15,6 +15,12 @@ export interface SocialMedia {
   facebook?: string;
 }
 
+export interface  EmergencyContacts{
+  name: string;
+  phone: string;
+  relationship: string;
+}
+
 export interface Patient {
   id: string;
   userId: string;
@@ -28,6 +34,8 @@ export interface Patient {
   twitter?: string;
   facebook?: string;
   instagram?: string;
+  maritalStatus: string | null;
+  EmergencyContacts: EmergencyContacts[] ;
   createdAt: string;
   updatedAt: string;
 }

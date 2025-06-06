@@ -1,15 +1,16 @@
 import { ReactNode } from "react";
 
 interface ButtonProps {
-  children: ReactNode;
+  children?: ReactNode;
   size?: "sm" | "md";
   variant?: "primary" | "outline";
   startIcon?: ReactNode;
   endIcon?: ReactNode;
   onClick?: () => void;
   disabled?: boolean;
-  loading?: boolean;           // nova prop
+  loading?: boolean;
   className?: string;
+  type?: "button" | "submit" | "reset"; // Adiciona a propriedade type
 }
 
 const Spinner = () => (
@@ -45,6 +46,7 @@ const Button: React.FC<ButtonProps> = ({
   disabled = false,
   loading = false,
   className = "",
+  type, // Desestrutura o type
 }) => {
   const sizeClasses = {
     sm: "px-4 py-3 text-sm",
@@ -58,23 +60,35 @@ const Button: React.FC<ButtonProps> = ({
       "bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300",
   };
 
+  // Verifica se há texto (children)
+  const hasText = children && children !== "";
+
   return (
     <button
+      type={type} // Passa o type diretamente, se não fornecido, será undefined
       className={`inline-flex items-center justify-center gap-2 rounded-lg transition ${className} ${
         sizeClasses[size]
       } ${variantClasses[variant]} ${
         disabled || loading ? "cursor-not-allowed opacity-50" : ""
       }`}
       onClick={onClick}
-      disabled={disabled || loading}  // desabilita se loading for true
+      disabled={disabled || loading}
     >
       {loading ? (
         <Spinner />
       ) : (
         <>
-          {startIcon && <span className="flex items-center">{startIcon}</span>}
-          {children}
-          {endIcon && <span className="flex items-center">{endIcon}</span>}
+          {startIcon && (
+            <span className={`flex items-center ${!hasText ? "mx-auto" : ""}`}>
+              {startIcon}
+            </span>
+          )}
+          {hasText && children}
+          {endIcon && (
+            <span className={`flex items-center ${!hasText ? "mx-auto" : ""}`}>
+              {endIcon}
+            </span>
+          )}
         </>
       )}
     </button>
