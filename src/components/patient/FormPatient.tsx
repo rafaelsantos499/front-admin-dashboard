@@ -7,11 +7,13 @@ import { At, BoxIcon, CalenderIcon, EnvelopeIcon, TrashBinIcon, UserIcon } from 
 import Select from "../form/Select";
 import Flatpickr from "react-flatpickr";
 import { Portuguese } from "flatpickr/dist/l10n/pt.js";
-import { useEffect, useState,} from "react";
-import { useParams } from 'react-router-dom';
+import { useEffect, useState, } from "react";
+import { useNavigate, useParams } from 'react-router-dom';
 import { createPatient, updatePatient } from "../../service/Patient/patientService";
 import { EmergencyContacts, PatientDto } from "../../types/dto/PatientDTO";
 import Skeleton from 'react-loading-skeleton'
+import { toast } from "react-toastify";
+import { AxiosError } from "axios";
 export interface FormData {
     id: string
     fullName: string;
@@ -50,6 +52,7 @@ const optionsGender = [
 ];
 export default function FormPatient({ patient, isLoading }: FormPatientProps) {
     const params = useParams();
+    const navigate = useNavigate();
     const newPatient = !params.id;
     const [isPending, startTransition] = useState(false)
     const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContacts[]>(
@@ -110,9 +113,64 @@ export default function FormPatient({ patient, isLoading }: FormPatientProps) {
             : { ...basePayload, email: data.email }; // create, com email
         startTransition(true)
         if (newPatient) {
-            await createPatient(payload).finally(() => startTransition(false));
+            const createPromise = createPatient(payload);
+
+            toast.promise(
+                createPromise,
+                {
+                    pending: 'Criando paciente...',
+                    success: {
+                        render() {
+                            navigate('/patient'); // Navega para /patient após sucesso
+                            return 'Paciente atualizado com sucesso! 🎉';
+                        }
+                    },
+                    error: {
+                        render({ data }: { data: AxiosError<{ message?: string }> }) {
+                            return data?.response?.data?.message || 'Erro ao criar paciente!';
+                        }
+                    }
+                },
+                {
+                    position: 'top-right',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    theme: 'light'
+                }
+            ).finally(() => startTransition(false));
         } else {
-            await updatePatient(payload, params.id as string).finally(() => startTransition(false));
+            const updatePromise = updatePatient(payload, params.id as string);
+
+            toast.promise(
+                updatePromise,
+                {
+                    pending: 'Atualizando paciente...',
+                    success: {
+                        render() {
+                            navigate('/patient'); // Navega para /patient após sucesso
+                            return 'Paciente atualizado com sucesso! 🎉';
+                        }
+                    },
+                    error: {
+                        render({ data }: { data: AxiosError<{ message?: string }> }) {
+                            console.log(data)
+                             return data?.response?.data?.message || 'Erro ao atualizar paciente!';
+                        }
+                    }
+                },
+                {
+                    position: 'top-right',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    theme: 'light'
+                }
+            ).finally(() => startTransition(false));
         }
     };
 

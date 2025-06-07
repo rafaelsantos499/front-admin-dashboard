@@ -25,10 +25,25 @@ import PublicRoute from "./routes/PublicRoute";
 import Patients from "./pages/patient/Patients";
 import Patient from "./pages/patient/Patient";
 import 'react-loading-skeleton/dist/skeleton.css'
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
 
 export default function App() {
   return (
     <AuthProvider>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover        
+        theme="light"
+        style={{ zIndex: 10000000, top: '85px' }} // Adicione isso
+      />
       <Router>
         <ScrollToTop />
         <Routes>
