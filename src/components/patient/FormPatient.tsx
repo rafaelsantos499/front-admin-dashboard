@@ -7,7 +7,7 @@ import { At, BoxIcon, CalenderIcon, EnvelopeIcon, TrashBinIcon, UserIcon } from 
 import Select from "../form/Select";
 import Flatpickr from "react-flatpickr";
 import { Portuguese } from "flatpickr/dist/l10n/pt.js";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState,} from "react";
 import { useParams } from 'react-router-dom';
 import { createPatient, updatePatient } from "../../service/Patient/patientService";
 import { EmergencyContacts, PatientDto } from "../../types/dto/PatientDTO";
@@ -24,7 +24,7 @@ export interface FormData {
     instagram: string;
     facebook: string;
     maritalStatus: string | null;
-    EmergencyContacts: EmergencyContacts[];
+    emergencyContacts: EmergencyContacts[];
 }
 interface EmergencyContactForm {
     contactName: string;
@@ -53,7 +53,7 @@ export default function FormPatient({ patient, isLoading }: FormPatientProps) {
     const newPatient = !params.id;
     const [isPending, startTransition] = useState(false)
     const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContacts[]>(
-        patient?.EmergencyContacts || []
+        patient?.emergencyContacts || []
     );
 
     const { register, handleSubmit, formState: { errors }, control, reset } = useForm<FormData>({
@@ -86,7 +86,7 @@ export default function FormPatient({ patient, isLoading }: FormPatientProps) {
     useEffect(() => {
         if (patient) {
             reset(patient);
-            setEmergencyContacts(patient.EmergencyContacts || []);
+            setEmergencyContacts(patient.emergencyContacts || []);
         }
     }, [patient, reset]);
 
@@ -101,11 +101,9 @@ export default function FormPatient({ patient, isLoading }: FormPatientProps) {
             fullName: data.fullName,
             address: data.address,
             gender: data.gender,
-            phone: data.phone
+            phone: data.phone,
+            emergencyContacts
         };
-
-        console.log("emergencyContacts:", emergencyContacts);
-
 
         const payload: PatientDto = patient && params.id
             ? basePayload

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { findPatient } from "../../service/Patient/patientService";
-import { Patient, SocialMedia } from "../../types/dto/PatientDTO";
+import { Patient } from "../../types/dto/PatientDTO";
 import FormPatient, { FormData } from "../../components/patient/FormPatient";
 import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
@@ -50,7 +50,7 @@ export default function Patients() {
             instagram: patient.socialMedia.instagram || "",
             facebook: patient.socialMedia.facebook || "",
             maritalStatus: patient.maritalStatus || "",
-            EmergencyContacts: patient.EmergencyContacts || []
+            emergencyContacts: patient.emergencyContacts || []
         }
         : undefined;
 

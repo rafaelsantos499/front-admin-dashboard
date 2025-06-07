@@ -35,7 +35,7 @@ export interface Patient {
   facebook?: string;
   instagram?: string;
   maritalStatus: string | null;
-  EmergencyContacts: EmergencyContacts[] ;
+  emergencyContacts: EmergencyContacts[] ;
   createdAt: string;
   updatedAt: string;
 }
